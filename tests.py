@@ -1,4 +1,5 @@
 from main import *
 
 def test_parserArchivo():
-    assert parserArchivo("hola.txt") == 5
+    assert parserArchivo("ArchivosTest/parserTest.txt") == [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0], [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0], [0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0], [0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0, 0, 2, 1, 1, 0]]
+

@@ -40,7 +40,7 @@ def recorrido(i, j, laberinto):
     return []
  
 
-laberinto = parserArchivo("hola.txt")
+laberinto = parserArchivo("ArchivosTest/parserTest.txt")
 ruta = recorrido(0,0, laberinto)
 if ruta == []:
     print("No se puede llegar al objetivo")
