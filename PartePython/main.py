@@ -1,5 +1,7 @@
+import subprocess
+
 # Valor ascii de X - 48
-X = 40 
+X = 40
  
 # Funcion que se encargar de leer el archivo generado en C.
 # Lee el archivo y lo almacena en una array de arrays de enteros, donde cada numero puede ser 0, 1 o 2.
@@ -30,7 +32,7 @@ def parserArchivo(pathF):
 # Se hace uso de la fuerza bruta, teniendo en cuenta todos los casos posibles recursivamente, quedandonos con la opcion correcto.
 def recorrido(y, x, laberinto): 
     # Caso base, si en la posicion de inicio es el objetivo se retorna la posicion final de la ruta.
-    if laberinto[y][x] == X:
+    if laberinto[y][x] == 40:
         return [(x, y)]
     # Caso en el que se intente llegar al objetivo a traves de una "pared". Necesario para dar la salida de lista vacia, cuando no se puede llegar al objetivo.
     if laberinto[y][x] == 1:
@@ -42,7 +44,7 @@ def recorrido(y, x, laberinto):
     # A continuacion se comienza a analizar cada caso de camino posible, en las 4 direcciones que se aceptan para formar parte de la ruta.
     # Cada if testea si la proxima posicion existe en el laberinto, ademas de constatar que no sea una posicion "pisada".
 
-    # Abajo.
+    # Arriba.
     if y > 0 and laberinto[y - 1][x] in [0, 1, X]:
         camino = recorrido(y - 1, x, laberinto)
         # Se testea si existe un posible camino en esa direccion, si lo hay se agraga a la ruta esta posicion. Y se sigue a partir de esta direccion.
@@ -55,7 +57,7 @@ def recorrido(y, x, laberinto):
         if camino:
             return [(x, y)] + camino
  
-    # Arriba.
+    # Abajo.
     if y < len(laberinto) - 1 and laberinto[y + 1][x] in [0, 1, X]:
         camino = recorrido(y + 1, x, laberinto)
         if camino:
@@ -71,10 +73,16 @@ def recorrido(y, x, laberinto):
     return []
  
 
-laberinto, inicio = parserArchivo("../ParteC/salida.txt")
-
-ruta = recorrido(inicio[1],inicio[0], laberinto)
-if ruta:
+def main():
+    response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
+    laberinto, inicio = parserArchivo("salida.txt")
+    ruta = recorrido(inicio[1],inicio[0], laberinto)
+    while(ruta == []):
+        response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
+        laberinto, inicio = parserArchivo("salida.txt")
+        ruta = recorrido(inicio[1],inicio[0], laberinto)
     for paso in ruta: print(paso)
-else:
-    print("No se puede llegar al objetivo") 
+    
+ 
+if __name__ == "__main__":
+    main()
