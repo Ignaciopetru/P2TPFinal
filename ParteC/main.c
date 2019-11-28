@@ -8,7 +8,7 @@ typedef struct
     int dimension, cantParedesRandom, cantParedesDefinidas, cantParedesRandomColocadas;
     int posInicial[2], posFinal[2];
     int **listaParedes;
-    int **listaObstaculosRandom;
+    int **listaParedesRandom;
 } datosLaberinto;
 
 // Funcion que se encarga de leer el archivo de entrada con los datos del laberinto y los almacena en la estructura definida anteriormente,
@@ -38,6 +38,11 @@ datosLaberinto * parserArchivo(char * path){
         datos->listaParedes[cantParedes] = (int *)malloc(sizeof(int)*2);
         // Se almacenan correspondientemente.
         fscanf(fp, "%d,%d)\n", &datos->listaParedes[cantParedes][0], &datos->listaParedes[cantParedes][1]);
+        if(datos->listaParedes[cantParedes][0] <=0 || datos->listaParedes[cantParedes][1] > datos->dimension){
+            // Se testea que la entrada tenga sentido.
+            printf("Alguna de las coordenadas ingresadas exede los limites del laberinto");
+            return NULL;
+        }
         datos->listaParedes[cantParedes][0] --;
         datos->listaParedes[cantParedes][1] --;
         // Se incrementa la cantidad de paredes.
@@ -47,12 +52,28 @@ datosLaberinto * parserArchivo(char * path){
     datos->cantParedesDefinidas = cantParedes;
     fscanf(fp, "%s %s\n", linea, linea);
     fscanf(fp, "%d\n", &datos->cantParedesRandom);
+    // Se testea que la entrada tenga sentido.
+    if((datos->cantParedesRandom + cantParedes + 2) > (datos->dimension*datos->dimension)){
+        printf("La cantidad de paredes ingresadas es mayor que la cantidad maxima admitida");
+        return NULL;
+    }
     fscanf(fp, "%s %s\n", linea, linea);
     fscanf(fp, "(%d,%d)\n", &datos->posInicial[0], &datos->posInicial[1]);
+    if(datos->posInicial[0] <=0 || datos->posInicial[1] > datos->dimension){
+        // Se testea que la entrada tenga sentido.
+        printf("Las coordenadas de la posicion inicial no pertenecen al laberinto");
+        return NULL;
+    }
     datos->posInicial[0] --;
     datos->posInicial[1] --;
+
     fscanf(fp, "%s\n", linea);
     fscanf(fp, "(%d,%d)\n", &datos->posFinal[0], &datos->posFinal[1]);
+    if(datos->posFinal[0] <=0 || datos->posFinal[1] > datos->dimension){
+        // Se testea que la entrada tenga sentido.
+        printf("Las coordenadas de la posicion final no pertenecen al laberinto");
+        return NULL;
+    }
     datos->posFinal[0]--;
     datos->posFinal[1]--;
     // Se cierra el archivo y retorna datos.
@@ -76,11 +97,7 @@ char comparativa(int x, int y, datosLaberinto * datos){
     // Devulve X si x, y corresponden a la posicion final.
     if(x == datos->posFinal[0] && y == datos->posFinal[1])
         return 'X';
-    // Devulve 1 en caso de que x, y corresponden a una pared, ya sea random o no.
-    for(int i = 0; i < datos->cantParedesRandomColocadas; i++) {
-        if (x == datos->listaObstaculosRandom[i][0] && y == datos->listaObstaculosRandom[i][1])
-            return '1';
-    }
+    // Devulve 1 en caso de que x, y corresponden a una pared.
     for(int i = 0; i < datos->cantParedesDefinidas; i++){
         if (x == datos->listaParedes[i][0] && y == datos->listaParedes[i][1])
             return '1';
@@ -108,13 +125,13 @@ void generadorObstaculosRandom(datosLaberinto * datos){
     int tam = datos->dimension*datos->dimension, puestas = 0, cont = 0;
     // Array bidemencional que contendra todas las posibles convinaciones de (i,j).
     if(datos->cantParedesRandom == 0){
-        datos->listaObstaculosRandom = NULL;
+        datos->listaParedesRandom = NULL;
     }else{
-        int listaPosicionesPosibles[tam][2];
+        int **listaPosicionesPosibles = calloc(tam, sizeof(int *));
         // Se setea la array ^.
-
         for(int j = 0; j < datos->dimension; j++){
             for(int i = 0; i < datos->dimension; i++){
+                listaPosicionesPosibles[puestas] = (int *)calloc(2, sizeof(int));
                 listaPosicionesPosibles[puestas][0] = j;
                 listaPosicionesPosibles[puestas][1] = i;
                 puestas ++;
@@ -125,65 +142,85 @@ void generadorObstaculosRandom(datosLaberinto * datos){
             swap(listaPosicionesPosibles[i], listaPosicionesPosibles[generarRandom(0, tam)]);
         }
         // Se setea el puntero en NULL para que el realloc pueda inicializar su tamaño.
-        datos->listaObstaculosRandom = NULL;
+        datos->listaParedesRandom = NULL;
         // Se comienza a obtener los randoms pedidos.
         while(datos->cantParedesRandomColocadas < datos->cantParedesRandom){
             // Se utiliza comparativa para determinar si en esa posicion hay algun otro objeto.
             if(comparativa(listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1], datos) =='0'){
                 // Si esta vacia, se pide mamoria y se almacena la posicion del random.
-                datos->listaObstaculosRandom = (int **)realloc(datos->listaObstaculosRandom, (datos->cantParedesRandomColocadas+1)* sizeof(int*));
-                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas] = (int *)calloc(2, sizeof(int));
-                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][0] = listaPosicionesPosibles[cont][0];
-                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][1] = listaPosicionesPosibles[cont][1];
-                // Printf auxiliar (sacar)
-                printf("(%d, %d)", listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1]);
+                datos->listaParedesRandom = (int **)realloc(datos->listaParedesRandom, (datos->cantParedesRandomColocadas+1)* sizeof(int*));
+                datos->listaParedesRandom[datos->cantParedesRandomColocadas] = (int *)calloc(2, sizeof(int));
+                datos->listaParedesRandom[datos->cantParedesRandomColocadas][0] = listaPosicionesPosibles[cont][0];
+                datos->listaParedesRandom[datos->cantParedesRandomColocadas][1] = listaPosicionesPosibles[cont][1];
                 datos->cantParedesRandomColocadas++;
             }
             // Contador aumentado, para seguir recorriendo la array de posibles.
             cont++;
         }
+        // Se libera la array utilizada.
+        for(int j = 0; j < tam; j++){
+                free(listaPosicionesPosibles[j]);
+        }
+        free(listaPosicionesPosibles);
     }
-
 }
-
 
 // Funcion que se encarga de generar el archivo que contiene al laberinto.
 // Recibe la estructura de datos y escribe con ellos el archivo.
 void generadorDeLaberinto(datosLaberinto * datos, char * path){
-    FILE *fp;
-    // Se abre el archivo en modo escritura +, para reemplazar el archivo que tenga ese nombre.
-    fp = fopen(path, "w+");
-    // Se generan los obstaculos random.
+    // Generados los obstaculos random.
     generadorObstaculosRandom(datos);
-    // Se recorre toda la matriz que representa el laberinto, escribiendo en el archivo segun corresponda.
-    for(int x = 0; x < datos->dimension; x++){
-        for(int y = 0; y < datos->dimension; y++){
-            // Se utiliza nuevamente comparativa.
-            fprintf(fp,"%c",comparativa(x, y, datos));
+    // Se pide memoria para almacenar la array que contendra el laberinto.
+    char ** laberinto = (char **)calloc(datos->dimension, sizeof(char *));
+    // Se inicializa en 0.
+    for(int i = 0; i < datos->dimension; i++){
+        laberinto[i] = (char *)calloc(datos->dimension + 1, sizeof(char));
+        for(int j = 0; j < datos->dimension; j++){
+            laberinto[i][j] = '0';
         }
-        // Se tiene en cuenta no colocar un \n al final, para facilitar el parseo en la siguiente parte.
-        if((x + 1) != datos->dimension)
-            fprintf(fp, "%s","\n");
+        // Se escribe el salto de linea al final de cada linea para poder escibir por linea luego.
+        laberinto[i][datos->dimension] = '\n';
     }
-    // Se cierra el archivo.
+    // Se setean los obejtos con posicion particular.
+    laberinto[datos->posInicial[0]][datos->posInicial[1]] = 'I';
+    laberinto[datos->posFinal[0]][datos->posFinal[1]] = 'X';
+    for(int i = 0; i < datos->cantParedesDefinidas;i++){
+        laberinto[datos->listaParedes[i][0]][datos->listaParedes[i][1]] = '1';
+    }
+    for(int i = 0; i < datos->cantParedesRandom;i++){
+        laberinto[datos->listaParedesRandom[i][0]][datos->listaParedesRandom[i][1]] = '1';
+    }
+    // Se procede a escribir linea por linea el archivo.
+    FILE *fp = fopen(path, "w+");
+    for(int i = 0; i < datos->dimension;i++){
+        fprintf(fp,"%s", laberinto[i]);
+    }
     fclose(fp);
 }
 
+// Funcion que se encarga de liberar la memoria utilizada en el programa.
 void liberarMemoria(datosLaberinto * datos){
+    // Se libera la array bidemencional listaParedes.
     for(int i = 0; i < datos->cantParedesDefinidas; i++){
         free(datos->listaParedes[i]);
     }
     free(datos->listaParedes);
+    // Se libera listaParedesRandom
     for(int i = 0; i < datos->cantParedesRandom; i++){
-        free(datos->listaObstaculosRandom[i]);
+        free(datos->listaParedesRandom[i]);
     }
-    free(datos->listaObstaculosRandom);
+    free(datos->listaParedesRandom);
+    // Y por ultimo el puntero a la estructura.
     free(datos);
 }
 
-int main() {
-    datosLaberinto * datos = parserArchivo("entrada.txt");
-    generadorDeLaberinto(datos, "salida.txt");
-    liberarMemoria(datos);
+int main(/*int argc, char * argv[]*/) {
+    datosLaberinto * datos = parserArchivo(/*argv[1]*/"entrada.txt");
+    // Si la entra es invalidad, datos devuelve NULL, en ese caso no se sigue con el programa.
+    if(datos!=NULL){
+        generadorDeLaberinto(datos, "salida.txt");
+        liberarMemoria(datos);
+    }
+
     return 0;
 }
