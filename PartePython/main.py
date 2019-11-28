@@ -78,6 +78,7 @@ def main():
     laberinto, inicio = parserArchivo("salida.txt")
     ruta = recorrido(inicio[1],inicio[0], laberinto)
     while(ruta == []):
+        print("bababa")
         response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
         laberinto, inicio = parserArchivo("salida.txt")
         ruta = recorrido(inicio[1],inicio[0], laberinto)
