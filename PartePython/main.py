@@ -10,22 +10,57 @@ def parserArchivo(pathF):
     file = open(pathF, 'r')
     # Se almacena su contenido en archivo (array).
     # Array doble que contendra al laberinto.
-    Alab = [[]]
+    laberintoArray = [[]]
     linea = 0
     inicio = (0,0)
     # Se recorren todos los caracteres del archivo, almacenandolos linea por array.
-    for y,line in enumerate(file):
-        for x,carac in enumerate(line):
+    for i,line in enumerate(file):
+        for j,carac in enumerate(line):
             if carac == 'I':
-                inicio = (x, y)
+                inicio = (i, j) #Ajuste de representacion
             if carac == '\n':
-                Alab.append([])
+                laberintoArray.append([])
             else:
-                Alab[y].append(ord(carac)-48)
+                laberintoArray[i].append(ord(carac)-48)
     
     # Se cierra el archivo y se retorna una tupla con el array doble y las coordenadas de inicio.
     file.close()
-    return Alab, inicio
+    return laberintoArray, inicio
+
+
+def outOfRange(nodo, laberinto):
+    largo = len(laberinto)
+    return nodo[0] >= 0 and nodo[1] >= 0 and nodo[0] < largo and nodo[1] < largo
+
+def obtenerVecinos(nodo, laberinto):
+    vecinos = []
+    direcciones = [(1,0),(0,1),(-1,0),(0,-1)]
+    for direccion in direcciones:
+        if (outOfRange(((nodo[0]+direccion[0]),(nodo[1]+direccion[1])), laberinto) and laberinto[nodo[0]+direccion[0]][nodo[1]+direccion[1]] != 1):
+            vecinos.append((nodo[0]+direccion[0],nodo[1]+direccion[1]))
+    return vecinos
+
+
+def resolverLab(inicio, laberinto):
+    explorado = []
+    cola = []
+    cola.append([inicio])
+    while cola:
+        ruta = cola.pop()
+        nodo = ruta[-1]
+        if nodo not in explorado:
+            vecinos = obtenerVecinos(nodo, laberinto)
+        for vecino in vecinos:
+            if vecino not in explorado:
+                nuevaRuta = list(ruta)
+                nuevaRuta.append(vecino)
+                cola.append(nuevaRuta)
+                if laberinto[vecino[0]][vecino[1]] == X:
+                    return nuevaRuta
+        explorado.append(nodo)
+    return []
+    
+
 
 
 # Funcion que se encargar de generar la ruta para llegar desde el inicio (en el caso del enunciado propuesto desde arriba a la izquiera.)
@@ -49,41 +84,56 @@ def recorrido(y, x, laberinto):
         camino = recorrido(y - 1, x, laberinto)
         # Se testea si existe un posible camino en esa direccion, si lo hay se agraga a la ruta esta posicion. Y se sigue a partir de esta direccion.
         if camino:
-            return [(x, y)] + camino
+            return [(y, x)] + camino
  
     # Derecha.
     if x < len(laberinto[y]) - 1 and laberinto[y][x + 1] in [0, 1, X]:
         camino = recorrido(y, x + 1, laberinto)
         if camino:
-            return [(x, y)] + camino
+            return [(y, x)] + camino
  
     # Abajo.
     if y < len(laberinto) - 1 and laberinto[y + 1][x] in [0, 1, X]:
         camino = recorrido(y + 1, x, laberinto)
         if camino:
-            return [(x, y)] + camino
+            return [(y, x)] + camino
  
     # Izquierda.
     if x > 0 and laberinto[y][x - 1] in [0, 1, X]:
         camino = recorrido(y, x - 1, laberinto)
         if camino:
-            return [(x, y)] + camino
+            return [(y, x)] + camino
  
     # En el caso de no poder ir en ninguna direccion se retorna la lista vacia.
     return []
- 
 
-def main():
-    response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
-    laberinto, inicio = parserArchivo("salida.txt")
-    ruta = recorrido(inicio[1],inicio[0], laberinto)
-    while(ruta == []):
-        print("bababa")
-        response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
-        laberinto, inicio = parserArchivo("salida.txt")
-        ruta = recorrido(inicio[1],inicio[0], laberinto)
-    for paso in ruta: print(paso)
-    
- 
-if __name__ == "__main__":
-    main()
+laberinto, inicio = parserArchivo("salida.txt")
+ruta2 = recorrido(inicio[0],inicio[1], laberinto)
+ruta = resolverLab(inicio, laberinto)
+for c in ruta:
+    print(c)
+print "-----------------"
+for c in ruta2:
+    print(c)
+
+
+
+
+#print(inicio)
+#ruta = recorrido(inicio[0],inicio[1], laberinto)
+#for paso in ruta: print(paso)
+
+#def main():
+#    response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
+#    laberinto, inicio = parserArchivo("salida.txt")
+#    ruta = recorrido(inicio[1],inicio[0], laberinto)
+#    while(ruta == []):
+#        print("bababa")
+#        response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
+#        laberinto, inicio = parserArchivo("salida.txt")
+#        ruta = recorrido(inicio[1],inicio[0], laberinto)
+#    for paso in ruta: print(paso)
+#    
+# 
+#if __name__ == "__main__":
+#    main()

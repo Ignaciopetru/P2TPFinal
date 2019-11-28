@@ -107,37 +107,43 @@ void generadorObstaculosRandom(datosLaberinto * datos){
     // Variables utiles durante el desarollo.
     int tam = datos->dimension*datos->dimension, puestas = 0, cont = 0;
     // Array bidemencional que contendra todas las posibles convinaciones de (i,j).
-    int listaPosicionesPosibles[tam][2];
-    // Se setea la array ^.
-    for(int j = 0; j < datos->dimension; j++){
-        for(int i = 0; i < datos->dimension; i++){
-            listaPosicionesPosibles[puestas][0] = j;
-            listaPosicionesPosibles[puestas][1] = i;
-            puestas ++;
+    if(datos->cantParedesRandom == 0){
+        datos->listaObstaculosRandom = NULL;
+    }else{
+        int listaPosicionesPosibles[tam][2];
+        // Se setea la array ^.
+
+        for(int j = 0; j < datos->dimension; j++){
+            for(int i = 0; i < datos->dimension; i++){
+                listaPosicionesPosibles[puestas][0] = j;
+                listaPosicionesPosibles[puestas][1] = i;
+                puestas ++;
+            }
+        }
+        // Se intercambian de manera aleatoria el contenido de la array, para que las posiciones sean aleatorias.
+        for(int i = 0; i < tam; i++){
+            swap(listaPosicionesPosibles[i], listaPosicionesPosibles[generarRandom(0, tam)]);
+        }
+        // Se setea el puntero en NULL para que el realloc pueda inicializar su tamaño.
+        datos->listaObstaculosRandom = NULL;
+        // Se comienza a obtener los randoms pedidos.
+        while(datos->cantParedesRandomColocadas < datos->cantParedesRandom){
+            // Se utiliza comparativa para determinar si en esa posicion hay algun otro objeto.
+            if(comparativa(listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1], datos) =='0'){
+                // Si esta vacia, se pide mamoria y se almacena la posicion del random.
+                datos->listaObstaculosRandom = (int **)realloc(datos->listaObstaculosRandom, (datos->cantParedesRandomColocadas+1)* sizeof(int*));
+                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas] = (int *)calloc(2, sizeof(int));
+                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][0] = listaPosicionesPosibles[cont][0];
+                datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][1] = listaPosicionesPosibles[cont][1];
+                // Printf auxiliar (sacar)
+                printf("(%d, %d)", listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1]);
+                datos->cantParedesRandomColocadas++;
+            }
+            // Contador aumentado, para seguir recorriendo la array de posibles.
+            cont++;
         }
     }
-    // Se intercambian de manera aleatoria el contenido de la array, para que las posiciones sean aleatorias.
-    for(int i = 0; i < tam; i++){
-        swap(listaPosicionesPosibles[i], listaPosicionesPosibles[generarRandom(0, tam)]);
-    }
-    // Se setea el puntero en NULL para que el realloc pueda inicializar su tamaño.
-    datos->listaObstaculosRandom = NULL;
-    // Se comienza a obtener los randoms pedidos.
-    while(datos->cantParedesRandomColocadas < datos->cantParedesRandom){
-        // Se utiliza comparativa para determinar si en esa posicion hay algun otro objeto.
-        if(comparativa(listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1], datos) =='0'){
-            // Si esta vacia, se pide mamoria y se almacena la posicion del random.
-            datos->listaObstaculosRandom = (int **)realloc(datos->listaObstaculosRandom, (datos->cantParedesRandomColocadas+1)* sizeof(int*));
-            datos->listaObstaculosRandom[datos->cantParedesRandomColocadas] = (int *)calloc(2, sizeof(int));
-            datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][0] = listaPosicionesPosibles[cont][0];
-            datos->listaObstaculosRandom[datos->cantParedesRandomColocadas][1] = listaPosicionesPosibles[cont][1];
-            // Printf auxiliar (sacar)
-            printf("(%d, %d)", listaPosicionesPosibles[cont][0], listaPosicionesPosibles[cont][1]);
-            datos->cantParedesRandomColocadas++;
-        }
-        // Contador aumentado, para seguir recorriendo la array de posibles.
-        cont++;
-    }
+
 }
 
 
