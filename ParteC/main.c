@@ -179,7 +179,8 @@ void generadorDeLaberinto(datosLaberinto * datos, char * path){
             laberinto[i][j] = '0';
         }
         // Se escribe el salto de linea al final de cada linea para poder escibir por linea luego.
-        laberinto[i][datos->dimension] = '\n';
+        if((i + 1) != datos->dimension)
+            laberinto[i][datos->dimension] = '\n';
     }
     // Se setean los obejtos con posicion particular.
     laberinto[datos->posInicial[0]][datos->posInicial[1]] = 'I';
