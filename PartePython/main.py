@@ -106,7 +106,7 @@ laberinto, inicio, fin = parserArchivo("../ParteC/salida.txt")
 ruta = resolverLab(inicio, fin, laberinto)
 for c in ruta:
     print(c)
-
+2
 #def main():
 #    response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
 #    laberinto, inicio = parserArchivo("salida.txt")
