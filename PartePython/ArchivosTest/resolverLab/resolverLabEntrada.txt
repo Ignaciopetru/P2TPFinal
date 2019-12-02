@@ -1,0 +1,6 @@
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto1.txt"
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto2.txt"
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto3.txt"
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto4.txt"
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto5.txt"
+"ArchivosTest/resolverLab/laberintosEntrada/laberinto6.txt"

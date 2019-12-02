@@ -1,5 +1,6 @@
 import subprocess
 import math
+import random
 
 # Valor ascii de X - 48
 X = 40
@@ -88,6 +89,7 @@ def resolverLab(inicio, fin,laberinto):
             # ordenadas, este sera el vecino mas cercano al fin del laberinto).
             if  laberinto[vecino[0]][vecino[1]] != -1:
                 # Si no esta pisado, se setea una nueva ruta, que sera la lista de nodos que representa ruta.
+                # Se utiliza list para compiar la ruta, y que no sea utilizada como referencia.
                 nuevaRuta = list(ruta)
                 nuevaRuta.append(vecino)
                 # Se agrega al vecino y se lo agrega a la cola para ser tratado luego en las siguientes iteraciones.
@@ -99,25 +101,27 @@ def resolverLab(inicio, fin,laberinto):
         laberinto[nodo[0]][nodo[1]] = -1
     # Si el bucle termina, quiere decir que se vacio la cola, es decir que se acabaron los nodos a analizar, osea, no se puede 
     # completar el laberinto.
-    return ["No tiene solucion"]
-    
+    return []
 
-laberinto, inicio, fin = parserArchivo("../ParteC/salida.txt")
-ruta = resolverLab(inicio, fin, laberinto)
-for c in ruta:
-    print(c)
-2
-#def main():
-#    response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
-#    laberinto, inicio = parserArchivo("salida.txt")
-#    ruta = resolverLab(inicio[1],inicio[0], laberinto)
-#    while(ruta == []):
-#        print("bababa")
-#        response = subprocess.run(["../ParteC/a.out", "entrada.txt"])
-#        laberinto, inicio = parserArchivo("salida.txt")
-#        ruta = recorrido(inicio[1],inicio[0], laberinto)
-#    for paso in ruta: print(paso)
-#    
-# 
-#if __name__ == "__main__":
-#    main()
+def main():
+    # Seed generada de forma random en python.
+    random.seed()
+    # Rango exageradamente grande.
+    seed = random.randint(-10000000, 10000000)
+    # Se llama al programa en c.
+    response = subprocess.run(["../ParteC/a.out", "../ParteC/entradaC.txt", str(seed)])
+    # Se parsea el archivo generado en c.
+    laberinto, inicio, fin = parserArchivo("salidaC.txt")
+    # Se calcula la ruta.
+    ruta = resolverLab(inicio, fin, laberinto)
+    # Si el camino resulto no tener solucion se llama nuevamente a c.
+    while(ruta == []):
+        seed = random.randint(-10000000, 10000000)
+        response = subprocess.run(["../ParteC/a.out", "../ParteC/entradaC.txt", str(seed)])
+        laberinto, inicio, fin = parserArchivo("salidaC.txt")
+        ruta = resolverLab(inicio, fin, laberinto)
+        # Por ultimo se muestra por pantalla la ruta.
+    for paso in ruta: print('('+str(paso[0]+1)+','+str(paso[1]+1)+')')
+ 
+if __name__ == "__main__":
+    main()
