@@ -1,5 +1,7 @@
 # P2TPFinal
 
+Ejecutar main.py, entrada en carpeta parteC
+
 C:
 
 - Toma como entrada un archivo, con la siguiente estructura:

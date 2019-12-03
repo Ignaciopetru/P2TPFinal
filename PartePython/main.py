@@ -109,7 +109,9 @@ def main():
     # Rango exageradamente grande.
     seed = random.randint(-10000000, 10000000)
     # Se llama al programa en c.
-    response = subprocess.run(["../ParteC/a.out", "../ParteC/entradaC.txt", str(seed)])
+    print("Ingrese direccion del nombre de archivo")
+    path = input()
+    response = subprocess.run(["../ParteC/a.out", path, str(seed)])
     # Se parsea el archivo generado en c.
     laberinto, inicio, fin = parserArchivo("salidaC.txt")
     # Se calcula la ruta.
@@ -117,7 +119,8 @@ def main():
     # Si el camino resulto no tener solucion se llama nuevamente a c.
     while(ruta == []):
         seed = random.randint(-10000000, 10000000)
-        response = subprocess.run(["../ParteC/a.out", "../ParteC/entradaC.txt", str(seed)])
+        
+        response = subprocess.run(["../ParteC/a.out", path, str(seed)])
         laberinto, inicio, fin = parserArchivo("salidaC.txt")
         ruta = resolverLab(inicio, fin, laberinto)
         # Por ultimo se muestra por pantalla la ruta.
